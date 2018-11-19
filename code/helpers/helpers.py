@@ -9,13 +9,13 @@ def load_data():
     """Loads and returns images and labels."""
     
     # Creates a list of file names in the data directory
-    filelist = glob.glob("../Images/*.tif")
+    filelist = glob.glob("../data/Images/*.tif")
     
     # Loads all data images in a list
     data = [Image.open(fname) for fname in filelist]
     
     # Creates a list of file names in the labels directory
-    filelist = glob.glob("../Labels/*.tif")
+    filelist = glob.glob("../data/Labels/*.tif")
     
     # Loads all labels images in a list
     labels = [Image.open(fname) for fname in filelist]
@@ -24,12 +24,22 @@ def load_data():
 
 # -----------------------------------------------------------------------------
 
-def save_data(data, labels):
+def save_data(data, labels, tr):
     """Save images and labels."""
     
+    direc_d = []
+    direc_l = []
+    
+    if tr == True:
+        direc_d = "../randomized_data/train/Images/data_{b}.tiff"
+        direc_l = "../randomized_data/train/Labels/labels_{b}.tiff"
+    else:
+        direc_d = "../randomized_data/test/Images/data_{b}.tiff"
+        direc_l = "../randomized_data/test/Labels/labels_{b}.tiff"
+    
     for i in range(len(data)):
-        data[i].save("../../../Documents/test/Images/data_{b}.tiff".format(b=i))
-        labels[i].save("../../../Documents/test/Labels/labels_{b}.tiff".format(b=i))
+        data[i].save(direc_d.format(b=i))
+        labels[i].save(direc_l.format(b=i))
         
     return None
 
