@@ -1,0 +1,23 @@
+Step 1: Open ImageJ
+Step 2: Open the image you want to label on ImageJ (take the image and slide it into ImageJ)
+Step 3: Select the image (click on it) and go to Plugin > Segmentation > Segmentation Editor. Two new windows will open, one black
+(which will have the labels and the other is your image inside the plugin)
+Step 4: Click on the freehand selection tool (on ImageJ bar there is like this rectangle and oval thing, the freehand is the fourth thing
+from the left)
+Step 5: Draw around a cell, try to be somewhat precise (you can zoom if you want or do whatever you feel more confortable)
+Step 6: Click on the "+" button on the plugin, it will add the drawing the the black image
+Step 7: Repeat step 6 for all cells
+Step 8: When you are finished, close your image and save the labelled image in the "labels" folder
+Step 9: Select your labelled image, go to Image > Adjust > Threshold
+Step 10: In the threshold window, put the second threshold to the maximum and the first threshold to 1, then press on "Apply"
+This will create an image with zeros in the background and 255 in the labelled regions
+
+--- Additional steps depending on how we want to organize ourselves ---
+
+Step 11: Select your labelled image, go to Image > Duplicate
+Step 12: Select one of the two labelled images and go to Process > Binary > Erode
+Step 13: Select one of the two labelled images and go to Process > Binary > Dilate
+Step 14: Go to Process > Image Calculator and select the dilated image as "Image1" and the eroded image as "Image2"
+Select "Subtract" for the operation to be done then click "OK"
+This will give only the edges (the outline) of your labels, so everywhere in white the value is 0 and the outlines are 255
+Step 15: Don't forget to save your final labelled image
