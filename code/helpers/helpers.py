@@ -31,11 +31,11 @@ def save_data(data, labels, tr):
     direc_l = []
     
     if tr == True:
-        direc_d = "../randomized_data/train/Images/data_{b}.tiff"
-        direc_l = "../randomized_data/train/Labels/labels_{b}.tiff"
+        direc_d = "../randomized_data/train/data_{b}.tiff"
+        direc_l = "../randomized_data/train/data_{b}_mask.tiff"
     else:
-        direc_d = "../randomized_data/test/Images/data_{b}.tiff"
-        direc_l = "../randomized_data/test/Labels/labels_{b}.tiff"
+        direc_d = "../randomized_data/test/data_{b}.tiff"
+        direc_l = "../randomized_data/test/data_{b}_mask.tiff"
     
     for i in range(len(data)):
         data[i].save(direc_d.format(b=i))
