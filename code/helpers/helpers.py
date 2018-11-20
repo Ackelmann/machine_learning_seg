@@ -30,13 +30,17 @@ def save_data(data, labels, tr):
     direc_d = []
     direc_l = []
     
+    # Selects path for data and labels in the training folder
     if tr == True:
         direc_d = "../randomized_data/train/data_{b}.tiff"
         direc_l = "../randomized_data/train/data_{b}_mask.tiff"
+        
+    # Selects path for data and labels in the testing folder
     else:
         direc_d = "../randomized_data/test/data_{b}.tiff"
         direc_l = "../randomized_data/test/data_{b}_mask.tiff"
     
+    # Saves data and labels in the right folder
     for i in range(len(data)):
         data[i].save(direc_d.format(b=i))
         labels[i].save(direc_l.format(b=i))
@@ -48,9 +52,8 @@ def save_data(data, labels, tr):
 def split_data(X, y, ratio=0.8, seed=1):
     """The split_data function will shuffle data randomly as well as return
     a split data set that are individual for training and testing purposes.
-    The input X is an array with samples in rows and features in columns.
-    The input y is an array with each entry corresponding to the label
-    of the corresponding sample in X. 
+    The input X is a list of images. The input y is a list of binary images
+    with each image corresponding to the label of the corresponding sample in X. 
     The ratio variable is a float, default 0.8, that sets the train set fraction of
     the entire dataset to 0.8 and keeps the other part for test set"""
         
@@ -76,11 +79,18 @@ def split_data(X, y, ratio=0.8, seed=1):
 # -----------------------------------------------------------------------------
 
 def smoothing_edge (label):
-    """Smoothens the edges of the labels"""
+    """Smoothens the edges of the labels."""
     
     tmp = label
+    
+    # Labels are inverted (background = white, signal = black),
+    # this step inverts that.
     tmp = ImageOps.invert(tmp)
+    
+    # Erosion of the labelled image
     tmp = tmp.filter(ImageFilter.MinFilter(3))
+    
+    # Median filter to make edges a bit smoother
     tmp = tmp.filter(ImageFilter.MedianFilter(5))
     tmp = tmp.filter(ImageFilter.MedianFilter(3))
     
@@ -89,9 +99,10 @@ def smoothing_edge (label):
 # -----------------------------------------------------------------------------
 
 def gradient_detector(data_img):
-    """Detects the direction of the gradient."""
+    """Detects the direction of the gradient image."""
     
     row, col = False, False
+    
     # Image size
     n = len(data_img)
     half_n = np.int(n/2 - 1)
@@ -107,16 +118,20 @@ def gradient_detector(data_img):
     # Regression fit
     reg = LinearRegression().fit(X_reg,y_reg)
     
+    # Storing the slope of the regression
     row_coef = reg.coef_
         
     # Construction of y data for regression at the center of the image
+    # along columns
     y_reg = data_img.T[half_n]
     
     # Regression fit
     reg = LinearRegression().fit(X_reg,y_reg)
     
+    # Storing the slope of the regression
     col_coef = reg.coef_
     
+    # This steps finds which direction the gradient will be (along rows or columns)
     if np.abs(row_coef) > np.abs(col_coef):
         row = True
     
@@ -129,7 +144,7 @@ def gradient_detector(data_img):
 
 def gradient_generator(data_img, row = True, col = False):
     """Generates an image with a gradient in the horizontal or
-    vertical direction"""
+    vertical direction."""
     
     # Image size
     n = len(data_img)
@@ -151,7 +166,8 @@ def gradient_generator(data_img, row = True, col = False):
         # This for loop computes a regression of the pixel values
         # along rows in order to find predicted min and max values
         # in order to construct a gradient for each row afterwards
-        for i in range(1024):
+        for i in range(n):
+            
             # Construction of y data for regression
             y_reg = data_img[i]
             
@@ -181,7 +197,8 @@ def gradient_generator(data_img, row = True, col = False):
         # This for loop computes a regression of the pixel values
         # along rows in order to find predicted min and max values
         # in order to construct a gradient for each column afterwards
-        for i in range(1024):
+        for i in range(n):
+            
             # Construction of y data for regression
             y_reg = data_img.T[i]
             
@@ -205,7 +222,7 @@ def gradient_generator(data_img, row = True, col = False):
 # -----------------------------------------------------------------------------
     
 def apply_gradient(data_img, gradient):
-    """Applies the gradient to the image"""
+    """Applies the gradient to the image."""
     
     # Average value of the gradient image
     average = np.mean(data_img)
@@ -222,10 +239,10 @@ def apply_gradient(data_img, gradient):
 # -----------------------------------------------------------------------------
 
 def illum_correction(image):
-    """"This function corrects some illumination issues, such as when
+    """"This function corrects a common illumination issue which is when
     an image has darker regions and lighter regions due to issues related
     to the system of acquisition. Illumination correction is perform
-    along rows and columns."""
+    along rows or columns."""
     
     # Convert image to array
     data_img = np.array(image, dtype=float)
@@ -233,6 +250,7 @@ def illum_correction(image):
     # Detect gradient
     row, col = gradient_detector(data_img)
     
+    # If no gradient is detectedm no correction is performed
     if (row == False) and (col == False):
         return image
     
@@ -277,7 +295,7 @@ def normalize(image):
     # Correction
     data_img = (data_img + 1.0) / 2.0
     
-    # Convert into uint8 for correct image converstion
+    # Convert into uint8 for correct image conversion
     data_img = (data_img * 255 + 0.5).astype('uint8')
     
     # Conversion into image
@@ -352,7 +370,7 @@ def rotate(data, labels):
     data_copy = data.copy()
     labels_copy = labels.copy()
     
-    # First quadrant cropping
+    # First rotation 90°
     print("90° Rotation")
     for i in range(len(data_copy)):
         tmp.append(data_copy[i].transpose(Image.ROTATE_90))
@@ -362,7 +380,7 @@ def rotate(data, labels):
     labels_copy = labels.copy()
     
     print("180° Rotation")
-    # Second quadrant cropping
+    # First rotation 180°
     for i in range(len(data_copy)):
         tmp.append(data_copy[i].transpose(Image.ROTATE_180))
         l_tmp.append(labels_copy[i].transpose(Image.ROTATE_180))
@@ -371,7 +389,7 @@ def rotate(data, labels):
     labels_copy = labels.copy()
     
     print("270° Rotation")
-    # Third quadrant cropping
+    # First rotation 270°
     for i in range(len(data_copy)):
         tmp.append(data_copy[i].transpose(Image.ROTATE_270))
         l_tmp.append(labels_copy[i].transpose(Image.ROTATE_270))
@@ -415,7 +433,8 @@ def preprocessing(data, labels, label_smooth = True, illum_cor = True, norm = Tr
     # Divide images in 4
     if crop:
         data_, labels_ = cropping(data_, labels_)
-        
+       
+    # Rotate images in 4 directions
     if rotation:    
         data_, labels_ = rotate(data_, labels_)
         
