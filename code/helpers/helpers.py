@@ -2,6 +2,7 @@ from PIL import Image, ImageOps, ImageFilter
 import glob
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from skimage import color, img_as_float
 
 # -----------------------------------------------------------------------------
 
@@ -439,3 +440,32 @@ def preprocessing(data, labels, label_smooth = True, illum_cor = True, norm = Tr
         data_, labels_ = rotate(data_, labels_)
         
     return data_, labels_
+
+def overlay(image, label, alpha = 0.7):
+    """Blends the labels on the image by putting the labels in red over
+    the image. Image and label objects have to be numpy arrays."""
+    
+    # Get dimensions of image
+    rows, cols = image.shape
+    
+    # Array of zeros for the green and blue channels
+    GB_channel = np.zeros((1024,1024))
+    
+    # Construct RGB version of grey-level image and label
+    img_color = np.dstack((image, image, image))
+    
+    # Label becomes red where it is white and it's black everywhere else
+    label_color = np.dstack((label, GB_channel, GB_channel))
+    
+    # Convert the input image and label HSV
+    img_hsv = color.rgb2hsv(img_color)
+    label_hsv = color.rgb2hsv(label_color)
+    
+    # Replace the hue and saturation of the original image
+    # with that of the label
+    img_hsv[..., 0] = label_hsv[..., 0]
+    img_hsv[..., 1] = label_hsv[..., 1] * alpha
+    
+    final_img = color.hsv2rgb(img_hsv)
+    
+    return final_img
