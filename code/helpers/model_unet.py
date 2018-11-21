@@ -5,7 +5,7 @@ from keras.optimizers import *
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 
 
-def model_unet(initial_w = None, size = (512,512,1)):
+def model_unet(initial_w = None, size = (256,256,1)):
     
     # Defining inputs
     inputs = Input(size)
