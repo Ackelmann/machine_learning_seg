@@ -33,13 +33,13 @@ def save_data(data, labels, tr):
     
     # Selects path for data and labels in the training folder
     if tr == True:
-        direc_d = "../randomized_data/train/data_{b}.tiff"
-        direc_l = "../randomized_data/train/data_{b}_mask.tiff"
+        direc_d = "../randomized_data/train/images/{b}.png"
+        direc_l = "../randomized_data/train/labels/{b}.png"
         
     # Selects path for data and labels in the testing folder
     else:
-        direc_d = "../randomized_data/test/data_{b}.tiff"
-        direc_l = "../randomized_data/test/data_{b}_mask.tiff"
+        direc_d = "../randomized_data/test/images/{b}.png"
+        direc_l = "../randomized_data/test/labels/{b}.png"
     
     # Saves data and labels in the right folder
     for i in range(len(data)):
